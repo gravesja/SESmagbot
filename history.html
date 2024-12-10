@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat History</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+</head>
+<body class="bg-gray-100 text-gray-800 p-6">
+
+    <header class="text-center mb-8">
+        <h1 class="text-3xl font-bold">Chat History</h1>
+    </header>
+
+    <main class="max-w-4xl mx-auto">
+        <!-- Chat History Section -->
+        <section>
+            <h2 class="text-xl font-semibold">Previous Conversations</h2>
+            <div id="chat-history" class="bg-white p-6 rounded-lg shadow-md mt-4">
+                <!-- Conversation will be displayed here -->
+                <div id="previous-messages" class="chat-box"></div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="text-center mt-12">
+        <a href="index.html" class="text-blue-600 underline">Back to Home</a>
+    </footer>
+
+    <script>
+        // Simulate previous chatbot conversation
+        const previousMessages = [
+            { user: "Hello, Fee! How are you?", bot: "I'm good, thanks! How can I help you today?" },
+            { user: "What do you think about technology?", bot: "I think technology is a great tool to enhance productivity and fun!" }
+        ];
+
+        // Function to append chat messages
+        function displayChatHistory() {
+            const chatHistory = document.getElementById('previous-messages');
+            previousMessages.forEach(message => {
+                const userMessageDiv = document.createElement("div");
+                userMessageDiv.classList.add("chat-message", "user-message");
+                userMessageDiv.textContent = message.user;
+                chatHistory.appendChild(userMessageDiv);
+
+                const botMessageDiv = document.createElement("div");
+                botMessageDiv.classList.add("chat-message", "fee-message");
+                botMessageDiv.textContent = message.bot;
+                chatHistory.appendChild(botMessageDiv);
+            });
+        }
+
+        // Call the function to display chat history
+        displayChatHistory();
+    </script>
+
+</body>
+</html>

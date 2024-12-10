@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>History - SESmag Document Summarizer</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 0.75rem;
+      text-align: left;
+    }
+    th {
+      background-color: #f3f4f6;
+    }
+    tr:nth-child(even) {
+      background-color: #f9fafb;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 font-sans text-gray-900">
+
+  <div class="max-w-6xl mx-auto p-6">
+    <h1 class="text-3xl font-bold mb-6 text-center text-blue-700">History</h1>
+
+    <!-- Back to Home Link -->
+    <div class="text-center mb-6">
+      <a href="index.html" class="text-blue-600 hover:underline">Back to Document Summarizer</a>
+    </div>
+
+    <!-- Tables Container -->
+    <div class="flex flex-col lg:flex-row gap-6">
+      <!-- PDF History Table -->
+      <div class="flex-1 bg-white p-4 rounded-lg shadow">
+        <h2 class="text-xl font-semibold mb-4 text-blue-700">Uploaded PDF Summaries</h2>
+        <table id="pdf-history-table">
+          <thead>
+            <tr>
+              <th>File Name</th>
+              <th>Summary</th>
+              <th>Original Text</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Rows will be dynamically added -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Chatbot History Table -->
+      <div class="flex-1 bg-white p-4 rounded-lg shadow">
+        <h2 class="text-xl font-semibold mb-4 text-blue-700">Chatbot Conversation History</h2>
+        <table id="chat-history-table">
+          <thead>
+            <tr>
+              <th>Timestamp</th>
+              <th>User Message</th>
+              <th>Chatbot Response</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Rows will be dynamically added -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Fetch and display PDF history from database
+    async function fetchPDFHistory() {
+      const response = await fetch('fetch_pdf_history.php'); // Create a PHP script to fetch PDF data
+      const data = await response.json();
+      const tableBody = document.querySelector('# -history-table tbody');
+      data.forEach(row => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${row.file_name}</td>
+          <td>${row.summary}</td>
+          <td>${row.original_text}</td>
+        `;
+        tableBody.appendChild(tr);
+      });
+    }
+
+    // Fetch and display Chatbot history from database
+    async function fetchChatHistory() {
+      const response = await fetch('fetch_chat_history.php'); // Create a PHP script to fetch chatbot data
+      const data = await response.json();
+      const tableBody = document.querySelector('#chat-history-table tbody');
+      data.forEach(row => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${row.timestamp}</td>
+          <td>${row.user_message}</td>
+          <td>${row.bot_response}</td>
+        `;
+        tableBody.appendChild(tr);
+      });
+    }
+
+    // Load both histories on page load
+    fetchPDFHistory();
+    fetchChatHistory();
+  </script>
+</body>
+</html>

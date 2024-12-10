@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="https://www.botacademy.com/wp-content/uploads/2017/04/Bot-Academy-logo-head.png" type="image/jpeg">
+  <title>Fee Document Roleplay Bot</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+  <style>
+    .chat-box {
+      max-height: 600px;
+      overflow-y: auto;
+      border: 1px solid #ddd;
+      padding: 10px;
+      background-color: #f9f9f9;
+      height: 400px;
+      width: 100%;
+    }
+    .chat-box.resizable {
+      resize: both;
+      overflow: auto;
+    }
+    .chat-message {
+      margin-bottom: 10px;
+    }
+    .user-message {
+      text-align: right;
+      color: #333;
+    }
+    .fee-message {
+      text-align: left;
+      color: #007acc;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 font-sans text-gray-900">
+
+  <header class="bg-blue-600 text-white py-4 shadow-md">
+    <div class="container mx-auto flex justify-between items-center px-4">
+      <h1 class="text-3xl sm:text-4xl font-bold">Fee Document Roleplay Bot</h1>
+      <a href="index.html" class="text-white bg-green-500 px-4 py-2 rounded hover:bg-green-600 text-sm sm:text-base">
+        Back to Info
+      </a>
+    </div>
+  </header>
+
+  <main class="container mx-auto p-4 sm:p-8">
+    <div class="bg-white p-6 sm:p-8 rounded-lg shadow-lg max-w-4xl mx-auto">
+      <h2 class="text-2xl sm:text-3xl font-bold mb-6 text-center text-blue-700">Interact with Fee</h2>
+
+      <!-- File Upload -->
+      <input type="file" id="pdf-upload" accept="application/pdf" class="mb-4 w-full p-3 border border-gray-300 rounded" />
+
+      <div id="chat-interface">
+        <!-- Chat Interface -->
+        <div class="chat-box resizable" id="chat-box"></div>
+        <input
+          type="text"
+          id="chat-input"
+          class="w-full p-3 border border-gray-300 rounded mt-2"
+          placeholder="Type your message here..."
+        />
+        <button id="send-message" class="bg-green-500 text-white w-full py-3 rounded mt-4 hover:bg-green-600">
+          Send
+        </button>
+      </div>
+
+      <!-- Loading Indicator -->
+      <div id="loading" class="hidden text-center text-blue-500 mt-4">Processing document...</div>
+    </div>
+  </main>
+  <footer class="text-center mt-12">
+    <a href="history.html" class="text-blue-600 underline">See chat history</a>
+</footer>
+  <script>
+    const pdfUpload = document.getElementById("pdf-upload");
+    const chatBox = document.getElementById("chat-box");
+    const chatInput = document.getElementById("chat-input");
+    const sendMessageBtn = document.getElementById("send-message");
+    const loadingDiv = document.getElementById("loading");
+  
+    let documentContent = "";
+  
+    // Process PDF using PDF.js
+    async function processPDF(file) {
+      const reader = new FileReader();
+      return new Promise((resolve, reject) => {
+        reader.onload = (e) => {
+          const typedArray = new Uint8Array(e.target.result);
+          pdfjsLib.getDocument(typedArray).promise
+            .then(async (pdfDoc) => {
+              let text = "";
+              for (let i = 1; i <= pdfDoc.numPages; i++) {
+                const page = await pdfDoc.getPage(i);
+                const content = await page.getTextContent();
+                text += content.items.map((item) => item.str).join(" ");
+              }
+              documentContent = text;
+              resolve();
+            })
+            .catch((err) => reject(err));
+        };
+        reader.readAsArrayBuffer(file);
+      });
+    }
+  
+    // Handle file upload
+    pdfUpload.addEventListener("change", async () => {
+      const file = pdfUpload.files[0];
+      if (file) {
+        loadingDiv.classList.remove("hidden");
+        await processPDF(file);
+        loadingDiv.classList.add("hidden");
+      }
+    });
+  
+    // Send and display chat messages
+    sendMessageBtn.addEventListener("click", async () => {
+      const userMessage = chatInput.value.trim();
+      if (userMessage) {
+        appendMessage("user-message", userMessage);
+        chatInput.value = "";
+        await respondAsFee(userMessage); // Ensure response is awaited
+      }
+    });
+  
+    // Append messages to the chatbox
+    function appendMessage(className, message) {
+      const messageDiv = document.createElement("div");
+      messageDiv.className = `chat-message ${className}`;
+      messageDiv.textContent = message;
+      chatBox.appendChild(messageDiv);
+      chatBox.scrollTop = chatBox.scrollHeight; // Scroll to the bottom
+    }
+
+    // Fee's response logic
+    async function respondAsFee(userMessage) {
+      appendMessage("fee-message", "Let me think about that...");
+
+      // Ensure that the response from the backend is received before continuing
+      const response = await getFeeResponse(userMessage, documentContent || feeBackgroundInfo);
+      
+      // Check if response was received
+      if (response) {
+        appendMessage("fee-message", response);
+      } else {
+        appendMessage("fee-message", "I had trouble processing that. Can you ask another way?");
+      }
+    }
+  
+    // Fee's background information
+    const feeBackgroundInfo = `Fee is 30 years old and employed as an accountant in Richmond, Virginia.
+    They have just moved to this employer 1 week ago and are still getting used to the new software systems.
+    Fee views technology as a useful tool that they control and like to ensure they have the latest version with all the new features.
+    Fee has never taken any computer programming or IT classes but is skilled at math and often writes and edits spreadsheet formulas for their work.
+    Fee enjoys the latest video games, smartphones, and hybrid cars, and they make a point of downloading and installing the newest software.
+    Fee is comfortable and confident with technology, enjoying learning about and using new tools.
+    They have high access to reliable devices and internet, often relying on their own devices rather than public or shared ones.
+    Fee has higher technology self-efficacy than their peers, but when tech issues arise, they often blame the technology rather than themselves.
+    Fee is not afraid of taking risks with new technologies, but their experience with those challenges doesn’t affect their attitude toward technology.
+    While they are concerned about losing personal information or identity due to new apps, they are not too worried about their location being known.
+    Fee tends to rely on their own devices, which lowers their perception of technology risks, but they view tech outputs as suggestions they can challenge or change.
+    Fee received high-quality education and is comfortable with a variety of technologies and software that use implicit assumptions, jargon, or complex structures.`;
+  
+    // Query backend server (instead of directly using OpenAI API)
+    async function getFeeResponse(userMessage, context) {
+      try {
+        const response = await fetch('http://localhost:3000/chat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            userMessage: userMessage,
+            context: context,
+          }),
+        });
+
+        // Handle response from the backend
+        const data = await response.json();
+        return data.message || "I had trouble processing that.";
+      } catch (error) {
+        console.error("Error with the backend server:", error);
+        return null; // Return null to indicate failure
+      }
+    }
+  </script>
+
+</body>
+</html>
