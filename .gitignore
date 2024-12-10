@@ -3,6 +3,5 @@ _site
 .jekyll-cache
 .jekyll-metadata
 .env
-package.json
-server.js
+
 vendor
